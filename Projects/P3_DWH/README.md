@@ -137,7 +137,7 @@ DWH_IAM_ROLE_NAME      =
 2. Create a python environment with the dependencies listed on *requirements.txt*
 3. Run the *cluster.py* script to create a redshift cluster on AWS.
 
-    `$ python create_cluster.py`
+    `$ python cluster.py`
 
 4. Run the *create_tables* script to set up the database staging and analytical tables.
 
@@ -145,7 +145,7 @@ DWH_IAM_ROLE_NAME      =
 
 5. Run the *etl* script to extract data from the files in S3, stage it in redshift, and store it in the dimensional tables.
 
-    `$ python create_tables.py`
+    `$ python etl.py`
 
 
 
