@@ -36,9 +36,6 @@ The log files in the dataset you'll be working with are partitioned by year and 
 
 log_data/2018/11/2018-11-12-events.json
 log_data/2018/11/2018-11-13-events.json
-And below is an example of what the data in a log file, 2018-11-12-events.json, looks like.
-
-Insert image here
 
 
 ## Database schema design
@@ -69,34 +66,34 @@ Using the song and event datasets, a star schema optimized for queries on song p
 
 ## Project Template
 
-The project template includes six files:
+The project template includes six files:<br/>
 
-sql_queries.py: In this python script you will create queries for staging, fact and dimensions tables.
-cluster.ipynb: This is a jupyter notebook which creates and deletes a refshift cluster.
-create_table.py: This script creates the fact and dimension tables for the star schema in Redshift cluster.
-etl.py: This script loads and processes data from S3 into staging tables on Redshift.
-requirements.txt: Python dependencies needed to run the project on your local machine.
-README.md This is the current file which provides detailed description of the project.
+sql_queries.py: In this python script you will create queries for staging, fact and dimensions tables.<br/>
+cluster.ipynb: This is a jupyter notebook which creates and deletes a refshift cluster.<br/>
+create_table.py: This script creates the fact and dimension tables for the star schema in Redshift cluster.<br/>
+etl.py: This script loads and processes data from S3 into staging tables on Redshift.<br/>
+requirements.txt: Python dependencies needed to run the project on your local machine.<br/>
+README.md This is the current file which provides detailed description of the project.<br/>
 
 #### Project Steps
-Below are steps you can follow to complete each component of this project.
+Below are steps you can follow to complete each component of this project.<br/>
 
 ##### Create Table Schemas
-Design schemas for your fact and dimension tables
-Write a SQL CREATE statement for each of these tables in sql_queries.py
-Complete the logic in create_tables.py to connect to the database and create these tables
-Write SQL DROP statements to drop tables in the beginning of create_tables.py if the tables already exist. This way, you can run create_tables.py whenever you want to reset your database and test your ETL pipeline.
-Launch a redshift cluster and create an IAM role that has read access to S3.
-Add redshift database and IAM role info to dwh.cfg.
-Test by running create_tables.py and checking the table schemas in your redshift database. You can use Query Editor in the AWS Redshift console for this.
+Design schemas for your fact and dimension tables. <br/>
+Write a SQL CREATE statement for each of these tables in sql_queries.py. <br/>
+Complete the logic in create_tables.py to connect to the database and create these tables. <br/>
+Write SQL DROP statements to drop tables in the beginning of create_tables.py if the tables already exist. This way, you can run create_tables.py whenever you want to reset your database and test your ETL pipeline.<br/>
+Launch a redshift cluster and create an IAM role that has read access to S3.<br/>
+Add redshift database and IAM role info to dwh.cfg.<br/>
+Test by running create_tables.py and checking the table schemas in your redshift database. You can use Query Editor in the AWS Redshift console for this.<br/>
 ##### Build ETL Pipeline
-Implement the logic in etl.py to load data from S3 to staging tables on Redshift.
-Implement the logic in etl.py to load data from staging tables to analytics tables on Redshift.
-Test by running etl.py after running create_tables.py and running the analytic queries on your Redshift database to compare your results with the expected results.
-Delete your redshift cluster when finished.
+Implement the logic in etl.py to load data from S3 to staging tables on Redshift.<br/>
+Implement the logic in etl.py to load data from staging tables to analytics tables on Redshift.<br/>
+Test by running etl.py after running create_tables.py and running the analytic queries on your Redshift database to compare your results with the expected results.<br/>
+Delete your redshift cluster when finished.<br/>
 
 Note
-The SERIAL command in Postgres is not supported in Redshift. The equivalent in redshift is IDENTITY(0,1), which you can read more on in the Redshift Create Table Docs.
+The SERIAL command in Postgres is not supported in Redshift. The equivalent in redshift is IDENTITY(0,1), which you can read more on in the Redshift Create Table Docs.<br/>
 
 
 REMINDER: Do not include your AWS access keys in your code when sharing this project!
@@ -151,129 +148,5 @@ DWH_IAM_ROLE_NAME      =
     `$ python create_tables.py`
 
 
-## Project structure
 
-
-## Queries and Results
-
-Number of rows in each table:
-
-| Table            | rows  |
-|---               | --:   |
-| staging_events   | 8056  |
-| staging_songs    | 14896 |
-| artists          | 10025 |
-| songplays        | 333   |
-| songs            | 14896 |
-| time             |  8023 |
-| users            |  105  |
-
-
-
-### Discussion
-```
-python sql_queries.py
-```
-
-In the python file sql_queries.py the DROP, CREATE and INSERT query statements are first written. Below an example can be seen where a user table is created using SQl query "CREATE TABLE IF NOT EXISTS name_of_the_table". The various columns in the table with their respective data type are then listed such as user id which is an integer. It is also declared as a PRIMARY KEY. <br/>
-
-user_table_create = (""" <br/>
-    CREATE TABLE IF NOT EXISTS users <br/>
-    (user_id int PRIMARY KEY,  <br/>
-    first_name text NOT NULL, <br/>
-    last_name text NOT NULL, <br/>
-    gender text, <br/>
-    level text) <br/>
-""") <br/>
-
-Following the same procedure, other tables of the star schema(listed in section Database Schema) are also created. Then continuing with the example, data is inserted into the user table as follows: <br/>
-
-user_table_insert = (""" <br/>
-    INSERT INTO users  <br/>
-    (user_id, first_name, last_name, gender, level) <br/>
-    VALUES (%s, %s, %s, %s, %s) <br/>
-    ON CONFLICT (user_id) DO UPDATE SET <br/>
-    level = EXCLUDED.level <br/>
-""")<br/>
-
-Here the %s in VALUES act as placeholders for the data, which is comprised of user_id, first_name, last_name, gender, and  level respectively.<br/>
-
-Same procedure is used for all the other tables in the schema. Finally, a general create table and drop table list is created which contains all the queries for each table in the schema:<br/>
-
-create_table_queries = [user_table_create, artist_table_create, song_table_create, time_table_create, songplay_table_create] <br/>
-drop_table_queries = [user_table_drop, artist_table_drop, song_table_drop, time_table_drop, songplay_table_drop] <br/>
-
- ```
-python create_tables.py
-```
-In this python file three functions are written: 
-
-1. create_database()
-2. drop_tables(cur, conn)
-3. create_tables(cur, conn)
-
-The function create_database creates a connection to the database and return connection and cursor object. <br/>
-The functions drop_tables and create_tables drop and create the tables in the database by taking in conn and cur objects as input. <br/>
-
-These functions are called in the main function below for execution of their respective tasks:<br/>
-
-def main():<br/>
- """
-    Description: This is the main functon which implements the following:<br/>
-    <br/>
-    - Drops (if exists) and Creates the sparkify database. <br/>
-    - Establishes connection with the sparkify database and gets
-    cursor to it.  <br/>
-    - Drops all the tables.  <br/>
-    - Creates all tables needed.<br/>
-    - Finally, closes the connection. <br/>
-    <br/>
-    Arguments:<br/>
-    <br/>
-    None <br/>
-    <br/>
-    Returns: <br/>
-    <br/>
-    None
-    <br/>  
-    """ <br/>
-    
-    
-    cur, conn = create_database()
-    
-    drop_tables(cur, conn)
-    create_tables(cur, conn)
-    conn.close()
-
-
-if __name__ == "__main__": <br/>
-    main()
-
- ```
-python etl.py
-```
-
-## ETL pipeline
-
-Note: Before running(rerunning) etl.py and/or etl.pynb, database and tables need to be created(updated) each time by running 
-python create_tables.py <br/>
-
-Some of the Key components in etl.pynb and etl.py are:
-
-- A connection is made to the sparkify database.
-- A get_files function is written which provides the path to each data file
-- The song data is first processed by putting the data into pandas dataframe by using pandas read_json function:
-    df = pd.read_json(filepath,lines=True)
-- The selected columns from the data are extracted from the pandas dataframe discussed in the above line:
-   artist_id, artist_latitude, artist_location, artist_longitude, artist_name, duration, num_songs, song_id, title, year = df.values[0]
-- The data is then put into a list:
-   song_data = [song_id, title, artist_id, year, duration]
-- The record is then inserted into the song table:
-   cur.execute(song_table_insert, song_data)
-   conn.commit()
-   
- Similar procedure is followed for the other tables in the schema. The details can be seen in the files etl.pynb and etl.py.
- 
- Recall that the difference between files etl.pynb and etl.py is that etl.pynb reads and processes and loads a single file from song_data and log_data as compared to etl.py which processes and loads all the data into the database.
-   
 
